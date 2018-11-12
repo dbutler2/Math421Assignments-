@@ -1,0 +1,60 @@
+---
+title: "Assignment 10"
+author: "Danica Butler"
+date: "October 17, 2018"
+output: word_document
+---
+#Number 1-2
+```{r}
+adult <- read.csv("C:/Users/student/Documents/Senior Year/Programming with R/adult.csv", header=FALSE)
+```
+#Number 3
+```{r}
+colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin', 'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'income')
+```
+#Number 4-5
+```{r}
+for(i in 1:ncol(adult)) {
+    adult[adult ==" ?"]= NA  
+    if(sum(is.na(adult[i]))> 0) {
+      if(is.numeric(adult[[i]]) == TRUE) {
+         adult[[i]][is.na(adult[[i]])] <- mean(adult[[i]], na.rm = TRUE)
+      }
+      else {
+        levels=unique(adult[,i])
+        adult[,i][is.na(adult[,i])] = levels[which.max(tabulate(match(adult[,i], x = levels)))]
+      }
+    }
+}
+```
+
+#Number 6
+```{r}
+library(ggplot2)
+
+ggplot(data = adult) + geom_bar(mapping = aes(x = sex, fill = educatoin)) + facet_wrap(~educatoin)
+
+ggplot(data = adult) + geom_bar(mapping = aes(x = sex, fill = income), position = "dodge")
+
+ggplot(data = adult) + geom_density(mapping=aes(x = hours_per_week, fill = sex)) + facet_wrap(~sex)
+
+ggplot(data = adult) + geom_density(mapping=aes(x = age, fill = race)) + facet_wrap(~race)
+
+```
+
+#Number 7
+```{r}
+
+set.seed(101) 
+sample <- sample.int(n = nrow(adult), size = floor(.60*nrow(adult)), replace = F)
+train = adult[sample, ]
+test  = adult[-sample, ]
+```
+
+
+
+
+
+
+
+
