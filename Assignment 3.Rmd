@@ -1,0 +1,103 @@
+---
+title: "Assignment 3"
+author: "Danica Butler"
+date: "September 24, 2018"
+output: word_document
+---
+#Preparing Data
+```{r echo=TRUE}
+library(ggplot2)
+titanic = read.csv("C:/Users/student/Documents/Senior Year/Programming with R/titanic.csv")
+titanic$Pclass = factor(titanic$Pclass)
+titanic$Sex = factor(titanic$Sex)
+titanic$Survived = factor(titanic$Survived)
+```
+#Questions 1-4
+```{r}
+sum(is.na(titanic))
+sum(is.na(titanic$Age))
+titanic[is.na(titanic)] = mean(titanic$Age, na.rm = TRUE)
+#Mean of age is 29.69912, replace all NA's in age w mean}
+titanic[,1] = NULL
+titanic$Name = NULL
+titanic$PassengerId = NULL
+titanic$Ticket = NULL
+titanic$SibSp = NULL
+titanic$Parch = NULL
+titanic$Cabin = NULL
+```
+#Questions 5-11
+```{r}
+mean(titanic$Age)
+titanicfemales <- subset(titanic, titanic$Sex == "female")
+mean(titanicfemales$Age)
+Class1Passengers <- subset(titanic, titanic$Pclass == "1")
+median(Class1Passengers$Fare)
+NonClass1Females <- subset(titanic, titanic$Pclass != "1" & titanic$Sex == "female")
+median(NonClass1Females$Fare)
+SurvivedClass1or2Females <- subset(titanic, titanic$Sex == "female" & titanic$Survived == "1" & titanic$Pclass != "3")
+median(SurvivedClass1or2Females$Age)
+FemaleTeenagersSurvived <- subset(titanic, titanic$Sex == "female" & titanic$Survived == "1" & titanic$Age >= "13" & titanic$Age <= "20")
+mean(FemaleTeenagersSurvived$Fare)
+FemaleTeenagersSurvivedClass1 <- subset(titanic, titanic$Sex == "female" & titanic$Survived == "1" & titanic$Age >= "13" & titanic$Age <= "20" & titanic$Pclass == "1")
+mean(FemaleTeenagersSurvivedClass1$Fare)
+FemaleTeenagersSurvivedClass2 <- subset(titanic, titanic$Sex == "female" & titanic$Survived == "1" & titanic$Age >= "13" & titanic$Age <= "20" & titanic$Pclass == "2")
+mean(FemaleTeenagersSurvivedClass2$Fare)
+FemaleTeenagersSurvivedClass3 <- subset(titanic, titanic$Sex == "female" & titanic$Survived == "1" & titanic$Age >= "13" & titanic$Age <= "20" & titanic$Pclass == "3")
+mean(FemaleTeenagersSurvivedClass3$Fare)
+```
+#Question 12
+```{r}
+AverageFare = mean(titanic$Fare)
+sum(titanic$Survived == 1 & titanic$Fare > AverageFare) / sum(titanic$Survived != 1 & titanic$Fare > AverageFare)
+```
+#Question 13
+```{r}
+titanic$sfare <- (titanic$Fare - mean(titanic$Fare))/(sd(titanic$Fare))
+```
+
+#Question 14
+```{r}
+mean(titanic$Age)
+YoungPassengers <- subset(titanic, titanic$Age <= "29.69912")
+ggplot(data = YoungPassengers) + geom_bar(mapping = aes(x = Sex, fill = Survived), position = "dodge")
+```
+
+#Question 15
+```{r}
+SurvivedHighFare <- subset(titanic, titanic$Fare > AverageFare & titanic$Survived == "1")
+ggplot(data = SurvivedHighFare) + geom_density(mapping = aes(x = Age))
+```
+
+#Question 16
+```{r}
+EmbarkedInSouthhamptonAndQueenstown <- subset(titanic, titanic$Embarked == "Q" | titanic$Embarked == "S")
+ggplot(data = EmbarkedInSouthhamptonAndQueenstown) + geom_density(mapping = aes(x = Embarked))
+```
+
+#Question 17-18
+```{r}
+titanic$cfare <- ifelse(titanic$Fare > AverageFare,"expensive", ifelse(titanic$Fare < AverageFare,"cheap",""))
+titanic$cage = titanic$Age
+titanic$cage[(titanic$cage > 0) & (titanic$cage <= 10)] = 0
+titanic$cage[(titanic$cage > 10) & (titanic$cage <= 20)] = 1
+titanic$cage[(titanic$cage > 20) & (titanic$cage <= 30)] = 2
+titanic$cage[(titanic$cage > 30) & (titanic$cage <= 40)] = 3
+titanic$cage[(titanic$cage > 40) & (titanic$cage <= 50)] = 4
+titanic$cage[(titanic$cage > 50) & (titanic$cage <= 60)] = 5
+titanic$cage[(titanic$cage > 60) & (titanic$cage <= 70)] = 6
+titanic$cage[(titanic$cage > 70) & (titanic$cage <= 80)] = 7
+```
+
+#Question 19
+```{r}
+HighPayers = titanic[titanic$Fare > AverageFare,]
+ggplot(data = HighPayers) + geom_bar( mapping = aes( x = cage, fill = Survived), position = "dodge")
+```
+
+#Question 20
+```{r}
+ggplot(data = HighPayers) + geom_bar( mapping = aes( x = cage, fill = Survived), position = "dodge") + facet_wrap(~ Pclass, nrow = 1)
+```
+
+
