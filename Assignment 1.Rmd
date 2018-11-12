@@ -1,0 +1,54 @@
+---
+title: "First Assignment"
+author: "Danica Butler"
+date: "September 17, 2018"
+output:
+  word_document: default
+  html_document: default
+---
+# Titanic Data
+
+## Data Analysis with R Markdown
+
+```{r}
+library(ggplot2)
+```
+```{r}
+titanic = read.csv("C:/Users/student/Documents/Titanic.csv")
+
+```
+#Comparing Pclass to Sex
+```{r}
+ggplot(titanic) + geom_bar(mapping = aes(x = Pclass, fill = Sex), position = "dodge")
+```
+
+
+#Comparing Survived to Sex
+```{r}
+ggplot(data = titanic) + geom_bar(mapping = aes(x = Survived, fill = Sex), position = "dodge")
+```
+
+#Comparing Survived to Age
+```{r}
+ggplot(data = titanic) + geom_bar(mapping = aes(x = Age, fill = Survived))
+```
+
+#Comparing Embarked to Survived
+```{r}
+ggplot(data = titanic) + geom_bar(mapping = aes(x = Embarked, fill = Survived), position = "dodge")
+```
+
+#Comparing Pclass to Survived
+```{r}
+ggplot(data = titanic) + geom_bar(mapping = aes(x = Pclass, fill = Survived), position = "dodge")
+```
+
+#Comparing Ticket to Fare
+```{r}
+ggplot(data = titanic) + geom_point(mapping = aes(x = Ticket, y = Fare))
+```
+
+#Comparing Fare to SibSp, also including Sex
+```{r}
+ggplot(data = titanic) + geom_point(mapping = aes(x = Fare, y = SibSp, color = Sex))
+```
