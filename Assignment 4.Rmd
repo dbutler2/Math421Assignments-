@@ -1,0 +1,76 @@
+---
+title: "Assignment 4"
+author: "Danica Butler"
+date: "October 4, 2018"
+output: word_document
+---
+#Number 1
+```{r}
+cubicf<- function(x)
+{ 
+  return(x^2 + 3*x + 1)
+}
+cubicf(3)
+```
+#Number 2
+```{r}
+prodf<- function(x)
+{ 
+  return(prod(x))
+}
+prodf(c(2,3,4))
+```
+#Number 3
+```{r}
+vector3 <- function(v,n)
+{ v[is.na(v)] <- n
+return(v)
+}
+vector3(c(2,4,5,NA),5)
+```
+
+#Number 4
+```{r}
+vector4 <- function(x){ 
+  avg <- mean(x, na.rm = TRUE)
+  x[is.na(x)] <- avg
+  return(x)
+}
+
+vector4(c(2,4,5,NA))
+```
+
+#Number 5
+``` {r}
+Number5 <- function(df) {
+  varcount<- ncol(df)
+  for(i in 1:varcount) {
+    if(is.numeric(df[[i]]) == TRUE) {
+      df[[i]][is.na(df[[i]])] <- mean(df[[i]], na.rm = TRUE)
+    }
+  }
+  return(df)
+}
+titanic = read.csv("C:/Users/student/Documents/Senior Year/Programming with R/titanic.csv")
+titanic[is.na(titanic)] = mean(titanic$Age, na.rm = TRUE)
+```
+
+#Number 6
+```{r}
+Num6<- function(df, variable1) {
+    library(ggplot2)
+     rt = ggplot(data = df) + geom_bar(mapping = aes(x = df[,variable1]))
+     return(rt)
+}
+Num6(titanic,2)
+```
+#Number7
+```{r}
+Num7 <- function(df, variable1, variable2) {
+    library(ggplot2)
+     rt = ggplot(data = df) + geom_bar(mapping = aes(x = df[,variable1], fill = df[,variable2]), position = "dodge")
+     return(rt)
+ }
+ Num7(titanic, 3,1)
+```
+
