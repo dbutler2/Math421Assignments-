@@ -1,0 +1,141 @@
+---
+title: "Assignment 12 Final"
+author: "Danica Butler"
+date: "October 31, 2018"
+output: word_document
+---
+
+
+
+#Number 1
+```{r}
+library(ggplot2)
+library(caret)
+library(lattice)
+library(rpart)
+
+adult <- read.csv("C:/Users/student/Documents/Senior Year/Programming with R/adult.csv", header=FALSE)
+colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin', 'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'income')
+
+
+for(i in 1:ncol(adult)) {
+    adult[adult ==" ?"]= NA  
+    blanks <- sum(is.na(adult[i]))
+    if(blanks > 0){
+      if(is.numeric(adult[[i]]) == TRUE) {
+        adult = preProcess(adult, method = "medianImpute") 
+      }
+      else {
+        levels=unique(adult[,i])
+        adult[,i][is.na(adult[,i])]=levels[which.max(tabulate(match(adult[,i], x = levels)))]
+      }
+    }
+}
+titanic = read.csv("C:/Users/student/Documents/Senior Year/Programming with R/titanic.csv")
+
+titanic$PassengerId =  NULL
+titanic$Ticket =  NULL
+titanic$Name = NULL
+titanic$Cabin = NULL
+titanic$Survived = factor(titanic$Survived)
+titanic$Pclass = factor(titanic$Pclass)
+titanic$Age[is.na(titanic$Age)] = mean(titanic$Age, na.rm = TRUE)
+levels(titanic$Embarked) = c("S","C","Q","S")
+
+for(i in 1:ncol(titanic)) {
+    titanic[titanic ==" ?"]= NA  
+    blanks <- sum(is.na(titanic[i]))
+    if(blanks > 0){
+      if(is.numeric(titanic[[i]]) == TRUE) {
+        df = preProcess(titanic, method = "medianImpute") 
+      }
+      else {
+        levels=unique(titanic[,i])
+        titanic[,i][is.na(titanic[,i])]=levels[which.max(tabulate(match(titanic[,i], x = levels)))]
+      }
+    }
+}
+```
+
+
+#Number 2
+```{r}
+Grid1 = expand.grid(mtry = c(1:2), splitrule = c("gini"),
+                     min.node.size = c(1:2))
+set.seed(41)
+forest_adult <- train(income ~.,data = adult, method = "ranger", 
+               trControl = trainControl(method ="cv", number = 7, verboseIter = TRUE),
+               tuneGrid = Grid1)
+
+forest_titanic <- train(Survived ~.,data = titanic, method = "ranger", 
+               trControl = trainControl(method ="cv", number = 7, verboseIter = TRUE),
+               tuneGrid = Grid1)
+
+forest_adult
+forest_titanic
+```
+
+
+#Number 3
+```{r}
+dtree_adult <- train(income ~.,data = adult, method = "rpart", 
+               trControl = trainControl(method ="cv", number = 10, verboseIter =  TRUE))
+
+dtree_titanic <- train(Survived ~.,data = titanic, method = "rpart", 
+               trControl = trainControl(method ="cv", number = 10, verboseIter = TRUE))
+
+dtree_adult
+dtree_titanic
+```
+
+
+#Number 4
+Fitting mtry = 2, splitrule = gini, min.node.size = 1 on full training set
+Fitting mtry = 2, splitrule = gini, min.node.size = 2 on full training set
+
+
+
+#Number 5
+```{r}
+plot(forest_adult)
+plot(forest_titanic)
+```
+
+#Number 6
+```{r}
+Grid2 = expand.grid(mtry = c(1:4), splitrule = c("gini","extratrees"),
+                     min.node.size = c(1:5))
+set.seed(41)
+forest2_adult <- train(income ~.,data = adult, method = "ranger", 
+               trControl = trainControl(method ="cv", number = 7, verboseIter = TRUE),
+               tuneGrid = Grid2)
+
+forest2_titanic <- train(Survived ~.,data = titanic, method = "ranger", 
+               trControl = trainControl(method ="cv", number = 7, verboseIter = TRUE),
+               tuneGrid = Grid2)
+
+forest2_adult
+forest2_titanic
+```
+
+
+#Number 7
+```{r}
+plot(forest2_adult)
+plot(forest2_titanic)
+```
+
+#Number 8
+```{r}
+Grid3 = expand.grid(.alpha=0:1,.lambda=seq(0.001,1,length=10))
+
+glm1 = train(income~., data=train_adult, method="glmnet")
+glm2 = train(income~., data=train_adult, method="glmnet", tuneGrid = Grid3)
+plot(glm1)
+plot(glm2)
+
+glm_t = train(Survived~., data=train_titanic, method="glmnet")
+glm2_t = train(Survived~., data=train_titanic, method="glmnet", tuneGrid = Grid3)
+plot(glm_t)
+plot(glm2_t)
+```
