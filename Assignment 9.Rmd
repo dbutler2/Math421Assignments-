@@ -1,0 +1,192 @@
+---
+title: "Assignment 9"
+author: "Danica Butler"
+date: "October 15, 2018"
+output: word_document
+---
+
+#Number 1
+```{r}
+dataset1 <- read.csv("C:/Users/student/Documents/Senior Year/Programming with R/dataset1.csv")
+ Missing <- function(x) {
+   return(sum(is.na(x)))
+ }
+
+ Missing(dataset1$Age)
+ 
+#input dataset1$variable and function "Missing" returns number of missing values in that column
+```
+
+#Number 2
+```{r}
+MissingNames <- function(x) {
+  return(names(which(colSums(is.na(x))>0)))
+}
+MissingNames(dataset1)
+
+
+ ##input dataset1 and function "MissingNames" returns names of columns with missing values
+```
+
+
+#Number 3
+```{r}
+SpecificMissingData <- function(x) {
+  Columns <- names(which(colSums(is.na(x))>0))
+  Numbers <- sapply(x, function(x) sum(is.na(x)))
+  list(Columns, Numbers)
+}
+SpecificMissingData(dataset1)
+#output 1 names variables with missing values, output 2 names each variable and how many missing values there are in each variable
+```
+
+#Number 4
+```{r}
+  ReplacingNumerics <- function(x) {
+    d1 = sapply(x, is.numeric)
+d_numeric = x[,d1]
+  Func1 <- function(y) replace(y, is.na(y), mean(y, na.rm = TRUE))
+replace(d_numeric, TRUE, lapply(d_numeric, Func1))
+  }
+
+ReplacingCategoricals <- function(x) {
+d2 = sapply(x, is.factor)
+Func2 <- function(z) replace(z, is.na(z), (names(table(z))[table(z)==max(table(z))]))
+replace(x, TRUE, lapply(x, Func2))
+}
+
+  ReplacingNumerics(dataset1)
+  ReplacingCategoricals(dataset1)
+```
+
+#Number 5
+```{r}
+  Variables=function(x) {
+    num_vars=c()
+    cat_vars=c()
+  for (i in 1:ncol(x)) {
+    if(is.numeric(x[,i])) {
+      num_vars=c(num_vars,names(x)[i])
+    } else {
+      cat_vars=c(cat_vars,names(x)[i])
+    }
+  }
+  num_data=x[num_vars]
+  cat_data=x[cat_vars]
+  print(num_data)
+  print(cat_data)
+}
+Variables(dataset1)
+```
+
+#Number 6
+```{r}
+library(ggplot2)
+
+DCurve <- function(x) {
+  for (i in 1:ncol(x)) {
+    if (is.numeric(x[,i])) {
+      print(ggplot(data = x) + geom_density(mapping = aes(x = x[,i])) + xlab(names(x)[i]))
+    }
+  }
+}
+DCurve(dataset1)
+```
+
+#Number 7
+```{r}
+BChart <- function(x) {
+  for (i in 1:ncol(x)) {
+    if (!is.numeric(x[,i])) {
+      print(ggplot(data = x) + geom_bar(mapping = aes(x = x[,i])) + xlab(names(x)[i]))
+    }
+  }
+}
+BChart(dataset1)
+```
+
+#Number 8
+```{r}
+BChart2 <- function(x,i,j) {
+    if(is.numeric(x[,i]) | is.numeric(x[,j])) {
+     print("ERROR: At least one of these variables is not a categorical variable")
+    } else {
+      print(ggplot(data = x) + geom_bar(mapping = aes(x = x[,i], fill = x[,j]),position = "dodge") + labs(x = names(x)[i],fill = names(x)[j]))
+    }
+  }
+
+BChart2(dataset1,5,5)
+BChart2(dataset1,2,4) 
+
+```
+
+#Number 9
+```{r}
+SChart <- function(x,i,j) {
+    if(!is.numeric(x[,i]) | !is.numeric(x[,j])) {
+      print("ERROR: At least one of these variables is not a numeric variable")
+    } else {
+      print(ggplot(data = x) + geom_point(mapping = aes(x = x[,i], y = x[,j])) + labs(x = names(x)[i],y = names(x)[j]))
+    }
+}
+
+SChart(dataset1,2,4)
+SChart(dataset1,3,5) 
+
+```
+
+#Number 10
+```{r}
+DCurve2=function(x,i,j) {
+    if(!is.numeric(x[,i])) {
+      print("ERROR: Variable is not numeric")
+    } else if(is.numeric(x[,j])){
+      print("ERROR: Partitioning Variable is not categorical")
+    } else {
+      print(ggplot(data = x) + geom_density(mapping = aes(x = x[,1],color = x[,j])) + labs(x = names(x)[i],color = names(x)[j]))
+    }
+}
+
+DCurve2(dataset1,4,5)
+DCurve2(dataset1,2,4) 
+
+
+```
+
+#Number 11
+```{r}
+AllBCharts <- function(x) {
+    for (i in 1:ncol(x)) {
+      if (!is.numeric(x[,i])) {
+        for(j in 1:ncol(x)) {
+          if (!is.numeric(x[,j]) & names(x)[j]!=names(x)[i]) {
+            print(ggplot(data = x) + geom_bar(mapping = aes(x = x[,i],fill = x[,j]),position = "dodge") + labs(x = names(x)[i],fill = names(x)[j]))
+          }
+        }
+      }
+    }
+}
+AllBCharts(dataset1)
+```
+
+#Number 13
+```{r}
+FullVisualization <- function(x) {
+  for (i in 1:ncol(x)) {
+      if (!is.numeric(x[,i])) {
+        for(j in 1:ncol(x)) {
+          if (!is.numeric(x[,j]) & names(x)[j]!= names(x)[i]) {
+            print(ggplot(data = x) + geom_bar(mapping = aes(x = x[,i],fill = x[,j]), position = "dodge") + labs(x = names(x)[i],fill = names(x)[j]))
+          }
+        }
+      } else {
+        for(j in 1:ncol(x)) {
+          if (!is.numeric(x[,j])) {
+            print(ggplot(data = x) + geom_density(mapping = aes(x = x[,i],color = x[,j])) + labs(x = names(x)[i],color = names(x)[j]))
+          }
+        }
+      }
+  }
+}
+FullVisualization(dataset1)
+```
