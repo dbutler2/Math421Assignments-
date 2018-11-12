@@ -1,0 +1,332 @@
+---
+title: "Assignment 11"
+author: "Danica Butler"
+date: "October 22, 2018"
+output: word_document
+---
+#Number 1
+```{r}
+adult <- read.csv("C:/Users/student/Documents/Senior Year/Programming with R/adult.csv", header=FALSE, na.strings = " ?")
+colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin', 'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'income')
+```
+                  
+#Number 2
+```{r}
+categorical <- !sapply(adult, is.numeric)
+
+Mode <- function(x) { 
+      Unique <- sort(unique(x))
+      Unique[which.max(tabulate(match(x, Unique)))] 
+}
+
+adult[categorical] <- lapply(adult[categorical], function(x)
+              replace(x, is.na(x), Mode(x[!is.na(x)])))
+```
+
+#Number 3
+```{r}
+library(caret)
+numeric <- sapply(adult, is.numeric)
+adult[numeric] <- lapply(adult[numeric], function(x)
+              replace(x, is.na(x), median(x[!is.na(x)])))
+```
+
+#Number 4
+```{r}
+levels(adult$native_country) = c("Asia", "Americas", "China", "Americas", "Americas", "Americas", "Americas", "Americas", "Europe", "Europe", "Europe", "Europe", "Americas", "Americas", "Europe", "Americas", "China", "Asia", "Asia", "Asia", "Europe", "Europe", "Americas", "Asia", "Asia", "Americas", "Other", "Americas", "Americas", "Asia", "Europe", "Europe", "Americas", "Europe", "Other", "China", "Asia", "Other", "Americas", "Asia", "Europe")
+table(adult$native_country)
+levels(adult$educatoin) <- c("High School", "High School", "High School", "Elementary School", "Elementary School", "Elementary School", "High School", "Associates", "Associates", "Bachelors/higher", "Bachelors/higher", "High School", "Bachelors/higher", "Elementary School", "Bachelors/higher", "Some College")
+table(adult$educatoin)
+levels(adult$occupation) = c("Office", "Other", "Handywork", "Office", "Farmer", "Services", "Handywork", "Services", "Services", "Office", "Other", "Office", "Office", "Handywork")
+table(adult$occupation)
+```
+
+#Number 5
+```{r}
+dummies_model <- dummyVars(income ~ ., data=adult)
+adultData_mat <- predict(dummies_model, newdata = adult)
+
+adultData <- data.frame(adultData_mat)
+adultData$income <- adult$income
+```
+
+#Number 6
+```{r}
+preProcess_missingdata_model <- preProcess(adult, method= c("center", "scale"))
+preProcess_missingdata_model
+```
+
+#Number 7
+```{r}
+library(caret)
+SplitIndex <- createDataPartition(adult$income, p = .70, list = FALSE, times = 1)
+train <- adult[SplitIndex,set.seed(2018)]
+test <- adult[-SplitIndex,set.seed(2018)]
+```
+
+#Number 8
+```{r}
+library(ranger)
+model = ranger(income ~., data = adult)
+pred3  = predict(model, data = adult)$predictions
+cm3 = confusionMatrix(pred3, adult$income, positive=" >50K")
+print(cm3)
+```
+
+#Number 9
+```{r}
+#3
+MissingNumber=function(x){
+  for (i in 1:ncol(x)) {
+    if (is.numeric(x[,i])) {
+      x[,i][is.na(x[,i])]=mean(x[,i], na.rm=TRUE)
+    }
+  }
+  return(x)
+}
+adult9 = MissingNumber(adult)
+sum(is.na(adult9))
+
+
+levels(adult9$native_country) = c("Asia", "Americas", "China", "Americas", "Americas", "Americas", "Americas", "Americas", "Europe", "Europe", "Europe", "Europe", "Americas", "Americas", "Europe", "Americas", "China", "Asia", "Asia", "Asia", "Europe", "Europe", "Americas", "Asia", "Asia", "Americas", "Other", "Americas", "Americas", "Asia", "Europe", "Europe", "Americas", "Europe", "Other", "China", "Asia", "Other", "Americas", "Asia", "Europe")
+table(adult9$native_country)
+levels(adult9$educatoin) <- c("High School", "High School", "High School", "Elementary School", "Elementary School", "Elementary School", "High School", "Associates", "Associates", "Bachelors/higher", "Bachelors/higher", "High School", "Bachelors/higher", "Elementary School", "Bachelors/higher", "Some College")
+table(adult9$educatoin)
+levels(adult9$occupation) = c("Office", "Other", "Handywork", "Office", "Farmer", "Services", "Handywork", "Services", "Services", "Office", "Other", "Office", "Office", "Handywork")
+table(adult9$occupation)
+
+
+#5
+dummies_model <- dummyVars(income ~ ., data=adult9)
+adultData_mat9 <- predict(dummies_model, newdata = adult9)
+
+adultData <- data.frame(adultData_mat9)
+adultData$income <- adult9$income
+
+
+
+#6
+preProcess_missingdata_model <- preProcess(adult9, method= c("center", "scale"))
+preProcess_missingdata_model
+
+
+#7
+splitIndex <- createDataPartition(adult9$income, p = .70, list = FALSE, times = 1)
+train <- adult9[ splitIndex,]
+test <- adult9[-splitIndex,]
+
+
+#8
+library(ranger)
+model = ranger(income ~., data = train)
+pred9  = predict(model, data = test)$predictions
+cm9 = confusionMatrix(pred9, test$income, positive=" >50K")
+print(cm9)
+
+```
+#Number 10
+```{r}
+#3
+MissingNumbers2=preProcess(adult, method='knnImpute')
+adult10=predict(MissingNumbers2, newdata = adult)
+sum(is.na(adult10))
+
+
+levels(adult10$native_country) = c("Asia", "Americas", "China", "Americas", "Americas", "Americas", "Americas", "Americas", "Europe", "Europe", "Europe", "Europe", "Americas", "Americas", "Europe", "Americas", "China", "Asia", "Asia", "Asia", "Europe", "Europe", "Americas", "Asia", "Asia", "Americas", "Other", "Americas", "Americas", "Asia", "Europe", "Europe", "Americas", "Europe", "Other", "China", "Asia", "Other", "Americas", "Asia", "Europe")
+table(adult10$native_country)
+levels(adult10$educatoin) <- c("High School", "High School", "High School", "Elementary School", "Elementary School", "Elementary School", "High School", "Associates", "Associates", "Bachelors/higher", "Bachelors/higher", "High School", "Bachelors/higher", "Elementary School", "Bachelors/higher", "Some College")
+table(adult10$educatoin)
+levels(adult10$occupation) = c("Office", "Other", "Handywork", "Office", "Farmer", "Services", "Handywork", "Services", "Services", "Office", "Other", "Office", "Office", "Handywork")
+table(adult10$occupation)
+
+dummies_model <- dummyVars(income ~ ., data=adult10)
+adult10Data_mat <- predict(dummies_model, newdata = adult10)
+
+adult10Data <- data.frame(adult10Data_mat)
+adult10Data$income <- adult10$income
+
+
+
+preProcess_missingdata_model <- preProcess(adult10, method= c("center", "scale"))
+preProcess_missingdata_model
+
+
+splitIndex <- createDataPartition(adult10$income, p = .70, list = FALSE, times = 1)
+train <- adult10[ splitIndex,]
+test <- adult10[-splitIndex,]
+
+
+#8
+library(ranger)
+model = ranger(income ~., data = train)
+pred10  = predict(model, data = test)$predictions
+cm10 = confusionMatrix(pred10, test$income, positive=" >50K")
+print(cm10)
+
+```
+
+#Number 11
+```{r}
+MissingNumbers3=preProcess(adult, method='medianImpute')
+adult11=predict(MissingNumbers3, newdata = adult)
+sum(is.na(adult11))
+
+
+levels(adult11$native_country) = c("Asia", "Americas", "China", "Americas", "Americas", "Americas", "Americas", "Americas", "Europe", "Europe", "Europe", "Europe", "Americas", "Americas", "Europe", "Americas", "China", "Asia", "Asia", "Asia", "Europe", "Europe", "Americas", "Asia", "Asia", "Americas", "Other", "Americas", "Americas", "Asia", "Europe", "Europe", "Americas", "Europe", "Other", "China", "Asia", "Other", "Americas", "Asia", "Europe")
+table(adult11$native_country)
+levels(adult11$educatoin) <- c("High School", "High School", "High School", "Elementary School", "Elementary School", "Elementary School", "High School", "Associates", "Associates", "Bachelors/higher", "Bachelors/higher", "High School", "Bachelors/higher", "Elementary School", "Bachelors/higher", "Some College")
+table(adult11$educatoin)
+levels(adult11$occupation) = c("Office", "Other", "Handywork", "Office", "Farmer", "Services", "Handywork", "Services", "Services", "Office", "Other", "Office", "Office", "Handywork")
+table(adult11$occupation)
+
+dummies_model <- dummyVars(income ~ ., data=adult11)
+adult11Data_mat <- predict(dummies_model, newdata = adult11)
+
+trainData <- data.frame(adult11Data_mat)
+trainData$income <- adult11$income
+
+
+numdf <- c()
+catdf <- c()
+  for(i in 1:ncol(trainData)) {
+    if(is.numeric(trainData[,i])) {
+      numdf <- c(numdf, names(trainData)[i])
+    }
+    else {
+      catdf <- c(catdf, names(trainData)[i])
+    }
+  }
+  numdata <- trainData[numdf]
+  catdata <- trainData[catdf]
+
+
+trainData2 <- preProcess(numdata, method= c("center", "scale"))
+trainData2
+
+
+
+names(adult11)[15] = "income"
+set.seed(2018)
+splitIndex <- createDataPartition(adult11$income, p = .70, list = FALSE, times = 1)
+train <- adult11[ splitIndex,]
+test <- adult11[-splitIndex,]
+
+
+library(ranger)
+model = ranger(income ~., data = train)
+pred11  = predict(model, data = test)$predictions
+cm11 = confusionMatrix(pred11, test$income, positive=" >50K")
+print(cm11)
+
+```
+#Number 12
+```{r}
+
+adult$workclass = as.numeric(adult$workclass)
+adult$educatoin = as.numeric(adult$educatoin)
+adult$marital_status = as.numeric(adult$marital_status)
+adult$occupation = as.numeric(adult$occupation)
+adult$relationship = as.numeric(adult$relationship)
+adult$race = as.numeric(adult$race)
+adult$sex = as.numeric(adult$sex)
+adult$native_country = as.numeric(adult$native_country)
+
+#1
+adult[adult==' ?']=NA
+sum(is.na(adult))
+
+#2
+missingval=function(x) {
+  for(i in 1:ncol(x)){
+    if(!is.numeric(x[,i])){
+      levels=unique(x[,i])
+      x[,i][is.na(x[,i])]=levels[which.max(tabulate(match(x, levels)))]
+    }
+  }
+  return(x)
+}
+adult2=missingval(adult)
+sum(is.na(adult2))
+
+#3
+MissingNumbers4=preProcess(adult, method='medianImpute')
+adult3=predict(MissingNumbers4, newdata = adult)
+sum(is.na(adult3))
+
+#5
+
+dummies_model <- dummyVars(income ~ ., data=adult)
+adultData_mat <- predict(dummies_model, newdata = adult)
+
+adultData <- data.frame(adultData_mat)
+adultData$income <- adult$income
+
+#6
+preProcess_missingdata_model <- preProcess(adult3, method= c("center", "scale"))
+preProcess_missingdata_model
+
+
+#7
+splitIndex <- createDataPartition(adult3$income, p = .70, list = FALSE, times = 1)
+train <- adult3[ splitIndex,]
+test <- adult3[-splitIndex,]
+
+
+#8
+library(ranger)
+model = ranger(income ~., data = train)
+pred12  = predict(model, data = test)$predictions
+cm12 = confusionMatrix(pred12, test$income, positive=" >50K")
+print(cm12)
+```
+```
+
+
+#Number 13
+```{r}
+adult[adult==' ?']=NA
+sum(is.na(adult))
+
+#2
+missingval=function(x) {
+  for(i in 1:ncol(x)){
+    if(!is.numeric(x[,i])){
+      levels=unique(x[,i])
+      x[,i][is.na(x[,i])]=levels[which.max(tabulate(match(x, levels)))]
+    }
+  }
+  return(x)
+}
+adult2=missingval(adult)
+sum(is.na(adult2))
+
+#3
+num_miss=preProcess(adult2, method='medianImpute')
+adult6=predict(num_miss, newdata = adult2)
+sum(is.na(adult6))
+
+#5
+dummies_model <- dummyVars(income ~ ., data=adult6)
+adult6Data_mat <- predict(dummies_model, newdata = adult6)
+
+adult6Data <- data.frame(adult6Data_mat)
+adult6Data$salary <- adult6$salary
+
+
+#6
+preProcess_missingdata_model <- preProcess(adult6, method= c("center", "scale"))
+preProcess_missingdata_model
+
+#7
+splitIndex <- createDataPartition(adult6$income, p = .70, list = FALSE, times = 1)
+train <- adult6[ splitIndex,]
+test <- adult6[-splitIndex,]
+
+
+#8
+library(ranger)
+model = ranger(income ~., data = train)
+pred13  = predict(model, data = test)$predictions
+cm13 = confusionMatrix(pred13, test$income, positive=" >50K")
+print(cm13)
+```
